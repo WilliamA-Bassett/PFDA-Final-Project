@@ -20,7 +20,8 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
-                    screen = pygame.display.set_mode(resolution, pygame.SCALED | pygame.FULLSCREEN)
+                    screen = pygame.display.set_mode(
+                        resolution, pygame.SCALED | pygame.FULLSCREEN)
                 else:
                     screen = pygame.display.set_mode(resolution, pygame.SCALED)
         black = pygame.Color(0, 0, 0)
