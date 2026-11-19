@@ -14,10 +14,15 @@ class Player():
         self.image = self.image_default
         self.speed = 1.0
         self.rect = self.image.get_rect(center=pos)
+        self.direction = pygame.Vector2(1,0).rotate(0)
 
     def direct(self, angle):
         self.image = pygame.transform.rotate(self.image_default, angle)
         self.rect = self.image.get_rect(center=self.pos)
+
+    def move(self, angle):
+        self.direction = pygame.Vector2(1,0).rotate(-(angle))
+        self.pos += self.direction * self.speed
     
     def draw(self, screen):
         screen.blit(self.image, self.pos)
@@ -32,7 +37,8 @@ def main():
     screen = pygame.display.set_mode(resolution, pygame.SCALED)
     is_fullscreen = False
 
-    player = Player((WIDTH//2, HEIGHT//2))
+    player = Player((0, HEIGHT//2))
+    angle = 0
 
     while True:
         for event in pygame.event.get():
@@ -49,19 +55,21 @@ def main():
                         resolution, pygame.SCALED | pygame.FULLSCREEN)
                 else:
                     screen = pygame.display.set_mode(resolution, pygame.SCALED)
-
+            
             if keys[pygame.K_UP]:
-                player.direct(90)
+                angle = 90
             if keys[pygame.K_DOWN]:
-                player.direct(270)
+                angle = 270
             if keys[pygame.K_LEFT]:
-                player.direct(180)
+                angle = 180
             if keys[pygame.K_RIGHT]:
-                player.direct(0)
+                angle = 0
                 
         black = pygame.Color(0, 0, 0)
         screen.fill(black)
 
+        player.direct(angle)
+        player.move(angle)
         player.draw(screen)
 
         pygame.display.flip()
