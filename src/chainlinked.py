@@ -15,6 +15,9 @@ class Player():
         self.rect = self.image.get_rect(center=pos)
         self.angle = 0
 
+    def draw(self, screen):
+        screen.blit(self.image, self.pos)
+
 
 def main():
     pygame.init()
@@ -24,6 +27,8 @@ def main():
     resolution = (WIDTH, HEIGHT)
     screen = pygame.display.set_mode(resolution, pygame.SCALED)
     is_fullscreen = False
+
+    player = Player((WIDTH//2, HEIGHT//2))
 
     while True:
         for event in pygame.event.get():
@@ -40,6 +45,9 @@ def main():
                     screen = pygame.display.set_mode(resolution, pygame.SCALED)
         black = pygame.Color(0, 0, 0)
         screen.fill(black)
+
+        player.draw(screen)
+
         pygame.display.flip()
         dt = clock.tick(12)
 
