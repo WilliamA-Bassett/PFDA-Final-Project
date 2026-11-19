@@ -4,6 +4,7 @@ import sys
 
 WIDTH = 800
 HEIGHT = 600
+TILESIZE = 32
 
 
 class Player():
@@ -12,7 +13,7 @@ class Player():
         self.pos = pygame.Vector2(pos)
         self.image_default = pygame.image.load(sprite_path).convert_alpha()
         self.image = self.image_default
-        self.speed = 1.0
+        self.speed = TILESIZE
         self.rect = self.image.get_rect(center=pos)
         self.direction = pygame.Vector2(1,0).rotate(0)
 
@@ -32,7 +33,6 @@ def main():
     pygame.init()
     pygame.display.set_caption("Chainlinked")
     clock = pygame.time.Clock()
-    dt = 0
     resolution = (WIDTH, HEIGHT)
     screen = pygame.display.set_mode(resolution, pygame.SCALED)
     is_fullscreen = False
@@ -73,7 +73,7 @@ def main():
         player.draw(screen)
 
         pygame.display.flip()
-        dt = clock.tick(12)
+        clock.tick(8)
 
 
 if __name__ == "__main__":
