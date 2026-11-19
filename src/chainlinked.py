@@ -2,12 +2,26 @@ import pygame
 import sys
 
 
+WIDTH = 800
+HEIGHT = 600
+
+
+class Player():
+
+    def __init__(self, pos=(0,0), sprite_path="graphics\spr_ball_placeholder.png"):
+        self.pos = pygame.Vector2(pos)
+        self.image = pygame.image.load(sprite_path).convert_alpha()
+        self.speed = 1.0
+        self.rect = self.image.get_rect(center=pos)
+        self.angle = 0
+
+
 def main():
     pygame.init()
     pygame.display.set_caption("Chainlinked")
     clock = pygame.time.Clock()
     dt = 0
-    resolution = (800, 600)
+    resolution = (WIDTH, HEIGHT)
     screen = pygame.display.set_mode(resolution, pygame.SCALED)
     is_fullscreen = False
 
