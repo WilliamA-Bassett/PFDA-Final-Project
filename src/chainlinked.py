@@ -10,11 +10,15 @@ class Player():
 
     def __init__(self, pos=(0,0), sprite_path="graphics\spr_ball_placeholder.png"):
         self.pos = pygame.Vector2(pos)
-        self.image = pygame.image.load(sprite_path).convert_alpha()
+        self.image_default = pygame.image.load(sprite_path).convert_alpha()
+        self.image = self.image_default
         self.speed = 1.0
         self.rect = self.image.get_rect(center=pos)
-        self.angle = 0
 
+    def direct(self, angle):
+        self.image = pygame.transform.rotate(self.image_default, angle)
+        self.rect = self.image.get_rect(center=self.pos)
+    
     def draw(self, screen):
         screen.blit(self.image, self.pos)
 
@@ -35,7 +39,9 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             keys = pygame.key.get_just_pressed()
+
             if keys[pygame.K_ESCAPE]:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
@@ -43,6 +49,16 @@ def main():
                         resolution, pygame.SCALED | pygame.FULLSCREEN)
                 else:
                     screen = pygame.display.set_mode(resolution, pygame.SCALED)
+
+            if keys[pygame.K_UP]:
+                player.direct(90)
+            if keys[pygame.K_DOWN]:
+                player.direct(270)
+            if keys[pygame.K_LEFT]:
+                player.direct(180)
+            if keys[pygame.K_RIGHT]:
+                player.direct(0)
+                
         black = pygame.Color(0, 0, 0)
         screen.fill(black)
 
