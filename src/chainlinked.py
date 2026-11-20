@@ -36,9 +36,25 @@ class Collectable():
         self.rect = self.image.get_rect(center=pos)
         self.dead = False
     
+    def check_collision(self, player_rect):
+        if self.rect.colliderect(player_rect):
+            self.dead = True
+
     def draw(self, screen):
         if self.dead:
             return
+        self.rect = self.image.get_rect(center=self.pos)
+        screen.blit(self.image, self.pos)
+
+
+class Wall():
+
+    def __init__(self, pos=(0,0), sprite_path="graphics\spr_wall_placeholder.png"):
+        self.pos = pygame.Vector2(pos)
+        self.image = pygame.image.load(sprite_path).convert_alpha()
+        self.rect = self.image.get_rect(center=pos)
+
+    def draw(self, screen):
         self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
 
@@ -56,6 +72,7 @@ def main():
     turnbuffer = False
 
     collectable = Collectable((96, 96))
+    wall = Wall((WIDTH//2, HEIGHT//2))
 
     while True:
         turnbuffer = False
@@ -92,9 +109,9 @@ def main():
         player.move(angle)
         player.draw(screen)
 
-        if collectable.rect.colliderect(player.rect):
-            collectable.dead = True
+        collectable.check_collision(player.rect)
         collectable.draw(screen)
+        wall.draw(screen)
 
         pygame.display.flip()
         clock.tick(8)
