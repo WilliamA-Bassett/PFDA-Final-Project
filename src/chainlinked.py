@@ -13,19 +13,18 @@ class Player():
         self.pos = pygame.Vector2(pos)
         self.image_default = pygame.image.load(sprite_path).convert_alpha()
         self.image = self.image_default
-        self.speed = TILESIZE
         self.rect = self.image.get_rect(center=pos)
         self.direction = pygame.Vector2(1,0).rotate(0)
 
     def direct(self, angle):
         self.image = pygame.transform.rotate(self.image_default, angle)
-        self.rect = self.image.get_rect(center=self.pos)
 
     def move(self, angle):
         self.direction = pygame.Vector2(1,0).rotate(-(angle))
-        self.pos += self.direction * self.speed
+        self.pos += self.direction * TILESIZE
     
     def draw(self, screen):
+        self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
 
 
@@ -34,8 +33,10 @@ class Collectable():
     def __init__(self, pos=(0,0), sprite_path="graphics\spr_collect_placeholder.png"):
         self.pos = pygame.Vector2(pos)
         self.image = pygame.image.load(sprite_path).convert_alpha()
-
+        self.rect = self.image.get_rect(center=pos)
+    
     def draw(self, screen):
+        self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
 
 
@@ -49,37 +50,37 @@ def main():
 
     player = Player((0, HEIGHT//2))
     angle = 0
+    turnbuffer = False
 
     collectable = Collectable()
 
     while True:
+        turnbuffer = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-            keys = pygame.key.get_just_pressed()
-
-            if keys[pygame.K_ESCAPE]:
-                is_fullscreen = not is_fullscreen
-                if is_fullscreen:
-                    screen = pygame.display.set_mode(
-                        resolution, pygame.SCALED | pygame.FULLSCREEN)
-                else:
-                    screen = pygame.display.set_mode(resolution, pygame.SCALED)
-            
-            if keys[pygame.K_UP]:
-                if angle != 270:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    is_fullscreen = not is_fullscreen
+                    if is_fullscreen:
+                        screen = pygame.display.set_mode(
+                            resolution, pygame.SCALED | pygame.FULLSCREEN)
+                    else:
+                        screen = pygame.display.set_mode(resolution, pygame.SCALED)
+                
+                if event.key == pygame.K_UP and angle != 270 and not turnbuffer:
                     angle = 90
-            if keys[pygame.K_DOWN]:
-                if angle != 90:
+                    turnbuffer = True
+                if event.key == pygame.K_DOWN and angle != 90 and not turnbuffer:
                     angle = 270
-            if keys[pygame.K_LEFT]:
-                if angle != 0:
+                    turnbuffer = True
+                if event.key == pygame.K_LEFT and angle != 0 and not turnbuffer:
                     angle = 180
-            if keys[pygame.K_RIGHT]:
-                if angle != 180:
+                    turnbuffer = True
+                if event.key == pygame.K_RIGHT and angle != 180 and not turnbuffer:
                     angle = 0
+                    turnbuffer = True
                 
         black = pygame.Color(0, 0, 0)
         screen.fill(black)
@@ -92,7 +93,7 @@ def main():
         collectable.draw(screen)
 
         pygame.display.flip()
-        clock.tick(8)
+        clock.tick(12)
 
 
 if __name__ == "__main__":
