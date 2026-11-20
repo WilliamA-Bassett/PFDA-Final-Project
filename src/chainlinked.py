@@ -34,8 +34,11 @@ class Collectable():
         self.pos = pygame.Vector2(pos)
         self.image = pygame.image.load(sprite_path).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
+        self.dead = False
     
     def draw(self, screen):
+        if self.dead:
+            return
         self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
 
@@ -52,7 +55,7 @@ def main():
     angle = 0
     turnbuffer = False
 
-    collectable = Collectable()
+    collectable = Collectable((96, 96))
 
     while True:
         turnbuffer = False
@@ -89,11 +92,12 @@ def main():
         player.move(angle)
         player.draw(screen)
 
-        collectable.pos = (96, 96)
+        if collectable.rect.colliderect(player.rect):
+            collectable.dead = True
         collectable.draw(screen)
 
         pygame.display.flip()
-        clock.tick(12)
+        clock.tick(8)
 
 
 if __name__ == "__main__":
