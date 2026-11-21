@@ -54,6 +54,11 @@ class Wall():
         self.image = pygame.image.load(sprite_path).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
 
+    def check_collision(self, player_rect):
+        if self.rect.colliderect(player_rect):
+            pygame.quit()
+            sys.exit()
+
     def draw(self, screen):
         self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
@@ -111,6 +116,7 @@ def main():
 
         collectable.check_collision(player.rect)
         collectable.draw(screen)
+        wall.check_collision(player.rect)
         wall.draw(screen)
 
         pygame.display.flip()
