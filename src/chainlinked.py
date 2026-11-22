@@ -18,26 +18,27 @@ class Player():
         self.chain_length = chain_length + 1
         self.chains = []
 
-    def update(self, angle):
+    def draw(self, angle, screen):
         self.image = pygame.transform.rotate(self.image_default, angle)
         self.direction = pygame.Vector2(1,0).rotate(-(angle))
         self.pos += self.direction * TILESIZE
+        self.rect = self.image.get_rect(center=self.pos)
+        screen.blit(self.image, self.pos)
 
         chain = Chain(self.pos, self.chain_length, angle)
         self.chains.insert(0, chain)
         self._update_chains()
+        for idx, chain in enumerate(self.chains):
+            if idx != 0:
+                chain.draw(screen)
 
     def _update_chains(self):
         for idx, chain in enumerate(self.chains):
             chain.update()
+            if idx != 0:
+                chain.check_collision(self)
             if chain.dead:
                 del self.chains[idx]
-    
-    def draw(self, screen):
-        self.rect = self.image.get_rect(center=self.pos)
-        for chain in self.chains:
-            chain.draw(screen)
-        screen.blit(self.image, self.pos)
 
 
 class Collectable():
@@ -48,8 +49,9 @@ class Collectable():
         self.rect = self.image.get_rect(center=pos)
         self.dead = False
     
-    def check_collision(self, player_rect):
-        if self.rect.colliderect(player_rect):
+    def check_collision(self, player):
+        if self.rect.colliderect(player.rect):
+            player.chain_length = player.chain_length + 1
             self.dead = True
 
     def draw(self, screen):
@@ -66,8 +68,8 @@ class Wall():
         self.image = pygame.image.load(sprite_path).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
 
-    def check_collision(self, player_rect):
-        if self.rect.colliderect(player_rect):
+    def check_collision(self, player):
+        if self.rect.colliderect(player.rect):
             pygame.quit()
             sys.exit()
 
@@ -91,6 +93,11 @@ class Chain():
             self.life = self.life - 1
         else:
             self.dead = True
+
+    def check_collision(self, player):
+        if self.rect.colliderect(player.rect):
+            pygame.quit()
+            sys.exit()
 
     def draw(self, screen):
         if self.dead:
@@ -145,12 +152,11 @@ def main():
         black = pygame.Color(0, 0, 0)
         screen.fill(black)
 
-        player.update(angle)
-        player.draw(screen)
+        player.draw(angle, screen)
 
-        collectable.check_collision(player.rect)
+        collectable.check_collision(player)
         collectable.draw(screen)
-        wall.check_collision(player.rect)
+        wall.check_collision(player)
         wall.draw(screen)
 
         pygame.display.flip()
