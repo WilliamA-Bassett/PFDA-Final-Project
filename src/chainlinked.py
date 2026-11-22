@@ -9,12 +9,14 @@ TILESIZE = 32
 
 class Player():
 
-    def __init__(self, pos=(0,0), sprite_path="graphics\spr_ball_placeholder.png"):
+    def __init__(self, pos, chain_length, sprite_path="graphics\spr_ball_placeholder.png"):
         self.pos = pygame.Vector2(pos)
         self.image_default = pygame.image.load(sprite_path).convert_alpha()
         self.image = self.image_default
         self.rect = self.image.get_rect(center=pos)
         self.direction = pygame.Vector2(1,0).rotate(0)
+        self.chain_length = chain_length
+        self.chains = []
 
     def direct(self, angle):
         self.image = pygame.transform.rotate(self.image_default, angle)
@@ -22,15 +24,28 @@ class Player():
     def move(self, angle):
         self.direction = pygame.Vector2(1,0).rotate(-(angle))
         self.pos += self.direction * TILESIZE
+
+    def update_chains(self):
+        chain = Chain(self.pos, self.chain_length)
+        self.chains.insert(0, chain)
+        self._update_chains_loop()
+
+    def _update_chains_loop(self):
+        for idx, chain in enumerate(self.chains):
+            chain.update()
+            if chain.dead:
+                del self.chains[idx]
     
     def draw(self, screen):
         self.rect = self.image.get_rect(center=self.pos)
         screen.blit(self.image, self.pos)
+        for chain in self.chains:
+            chain.draw(screen)
 
 
 class Collectable():
 
-    def __init__(self, pos=(0,0), sprite_path="graphics\spr_collect_placeholder.png"):
+    def __init__(self, pos, sprite_path="graphics\spr_collect_placeholder.png"):
         self.pos = pygame.Vector2(pos)
         self.image = pygame.image.load(sprite_path).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
@@ -49,7 +64,7 @@ class Collectable():
 
 class Wall():
 
-    def __init__(self, pos=(0,0), sprite_path="graphics\spr_wall_placeholder.png"):
+    def __init__(self, pos, sprite_path="graphics\spr_wall_placeholder.png"):
         self.pos = pygame.Vector2(pos)
         self.image = pygame.image.load(sprite_path).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
@@ -64,6 +79,28 @@ class Wall():
         screen.blit(self.image, self.pos)
 
 
+class Chain():
+
+    def __init__(self, pos, life, sprite_path="graphics\spr_chain_placeholder.png"):
+        self.pos = pygame.Vector2(pos)
+        self.image = pygame.image.load(sprite_path).convert_alpha()
+        self.rect = self.image.get_rect(center=pos)
+        self.life = life
+        self.dead = False
+
+    def update(self):
+        if self.life != 0:
+            self.life = self.life - 1
+        else:
+            self.dead = True
+
+    def draw(self, screen):
+        if self.dead:
+            return
+        self.rect = self.image.get_rect(center=self.pos)
+        screen.blit(self.image, self.pos)
+        
+
 def main():
     pygame.init()
     pygame.display.set_caption("Chainlinked")
@@ -72,7 +109,7 @@ def main():
     screen = pygame.display.set_mode(resolution, pygame.SCALED)
     is_fullscreen = False
 
-    player = Player((0, HEIGHT//2))
+    player = Player((WIDTH//4, HEIGHT//2), 1)
     angle = 0
     turnbuffer = False
 
@@ -113,6 +150,7 @@ def main():
         player.direct(angle)
         player.move(angle)
         player.draw(screen)
+        player.update_chains()
 
         collectable.check_collision(player.rect)
         collectable.draw(screen)
